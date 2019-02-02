@@ -32,15 +32,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_login);
         assignUI();
 
+        // Check whether user already signed in or not
+        if (ParseUser.getCurrentUser() != null) {
+            transitionToMainActivity();
+        }
+
         // Set title to ActionBar
         setTitle("Log In");
 
-        // Call all OnKey method
+        // Call All OnKey Event Handler
         callAllOnKeyTap();
 
-        // Call all OnClick method
+        // Call All OnClick Event Handler
         callAllOnClick();
-
     }
 
     @Override
@@ -59,6 +63,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void transitionToSignUpActivity() {
         Intent signUpActivity = new Intent(this, SignUpActivity.class);
         startActivity(signUpActivity);
+        finish();
+    }
+
+    private void transitionToMainActivity() {
+        Intent mainActivity = new Intent(this, MainActivity.class);
+        startActivity(mainActivity);
         finish();
     }
 
@@ -136,12 +146,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         @Override
                         public void done(ParseUser user, ParseException e) {
                             if (user != null && e == null) {
-                                FancyToast.makeText(LoginActivity.this,
-                                        "Successfully logged in",
-                                        Toast.LENGTH_SHORT,
-                                        FancyToast.SUCCESS,
-                                        true)
-                                        .show();
+                                transitionToMainActivity();
                             } else {
                                 FancyToast.makeText(LoginActivity.this,
                                         "Error : " + e.getMessage(),

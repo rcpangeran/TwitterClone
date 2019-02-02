@@ -38,30 +38,31 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_sign_up);
         assignUI();
 
+        // Check whether user already signed in or not
+        if (ParseUser.getCurrentUser() != null) {
+            transitionToMainActivity();
+        }
+
         // Set title to ActionBar
         setTitle("Sign Up");
 
-        // Call all OnKey method
+        // Call All OnKey Event Handler
         callAllOnKeyTap();
 
-        // Call all onClick method
+        // Call All OnClick Event Handler
         callAllOnClick();
     }
 
     @Override
     public void onBackPressed() {
         Toast mToast = null;
-
-        if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis())
-        {
+        if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis()) {
             mToast.cancel();
             super.onBackPressed();
             return;
-        }
-        else {
+        } else {
             mToast.makeText(getBaseContext(), "Tap back button in order to exit", Toast.LENGTH_SHORT).show();
         }
-
         mBackPressed = System.currentTimeMillis();
     }
 
@@ -121,7 +122,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 break;
             case (R.id.btnSignUp_SignUp) :
                 createNewUser();
-                // transitionToMainActivity();
                 break;
             case (R.id.txtSignUp_Login) :
                 transitionToLoginActivity();
@@ -162,20 +162,16 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             newUser.setUsername(edtSignUp_Username.getText().toString());
             newUser.setPassword(edtSignUp_Password.getText().toString());
 
-            final ProgressDialog dialog = new ProgressDialog(this);
+            final ProgressDialog dialog = new ProgressDialog(SignUpActivity.this);
             dialog.setMessage("Signing up " + edtSignUp_Username.getText().toString());
             dialog.show();
 
             newUser.signUpInBackground(new SignUpCallback() {
                 @Override
                 public void done(ParseException e) {
+                    dialog.dismiss();
                     if (e == null) {
-                        FancyToast.makeText(SignUpActivity.this,
-                                "Signed up success",
-                                Toast.LENGTH_SHORT,
-                                FancyToast.SUCCESS,
-                                true)
-                                .show();
+                        transitionToMainActivity();
                     } else {
                         FancyToast.makeText(SignUpActivity.this,
                                 "Error : " + e.getMessage(),
@@ -184,7 +180,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                                 true)
                                 .show();
                     }
-                    dialog.dismiss();
                 }
             });
         }
