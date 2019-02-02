@@ -2,10 +2,12 @@ package com.learn.ac_twitterclone;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,10 +19,15 @@ import com.parse.ParseUser;
 import com.parse.SignUpCallback;
 import com.shashank.sony.fancytoastlib.FancyToast;
 
+import java.util.Objects;
+
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener, View.OnKeyListener {
+    private ConstraintLayout layoutSignUp_Root;
     private EditText edtSignUp_Email, edtSignUp_Username, edtSignUp_Password;
     private Button btnSignUp_SignUp;
     private TextView txtSignUp_Login;
+    private static final int TIME_INTERVAL = 2000; // # milliseconds, desired time passed between two back presses.
+    private long mBackPressed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +48,29 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         callAllOnClick();
     }
 
+    @Override
+    public void onBackPressed() {
+        Toast mToast = null;
+
+        if (mBackPressed + TIME_INTERVAL > System.currentTimeMillis())
+        {
+            mToast.cancel();
+            super.onBackPressed();
+            return;
+        }
+        else {
+            mToast.makeText(getBaseContext(), "Tap back button in order to exit", Toast.LENGTH_SHORT).show();
+        }
+
+        mBackPressed = System.currentTimeMillis();
+    }
+
     private void installToBack4App() {
         ParseInstallation.getCurrentInstallation().saveInBackground();
     }
 
     private void assignUI() {
+        layoutSignUp_Root = findViewById(R.id.layoutSignUp_Root);
         edtSignUp_Email = findViewById(R.id.edtSignUp_Email);
         edtSignUp_Username = findViewById(R.id.edtSignUp_Username);
         edtSignUp_Password = findViewById(R.id.edtSignUp_Password);
@@ -83,6 +108,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void callAllOnClick() {
+        layoutSignUp_Root.setOnClickListener(this);
         btnSignUp_SignUp.setOnClickListener(this);
         txtSignUp_Login.setOnClickListener(this);
     }
@@ -90,6 +116,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
+            case (R.id.layoutSignUp_Root) :
+                dismissAllUIInterface();
+                break;
             case (R.id.btnSignUp_SignUp) :
                 createNewUser();
                 // transitionToMainActivity();
@@ -97,6 +126,15 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             case (R.id.txtSignUp_Login) :
                 transitionToLoginActivity();
                 break;
+        }
+    }
+
+    private void dismissAllUIInterface() {
+        try {
+            InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(Objects.requireNonNull(getCurrentFocus()).getWindowToken(),0);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
